@@ -1,0 +1,49 @@
+body {
+    text-align: center;
+}
+
+button {
+    width: 150px;
+    height: 150px;
+    border: 2px solid black;
+    margin: 10px;
+}
+
+button:hover {
+    border: 5px solid black;
+    cursor: pointer;
+}
+
+p {
+    font-size: 24px;
+    font-family: sans-serif;
+}
+
+#match {
+    padding: 20px;
+    border: 2px solid black;
+}
+
+.green {
+    background-color: green;
+}
+
+.red {
+    background-color: red;
+}
+
+.blue {
+    background-color: blue;
+}
+
+.purple {
+    background-color: purple;
+}
+
+
+@media (max-width: 425px) {
+    button {
+        width: 100px;
+        height: 100px;
+    }
+}
