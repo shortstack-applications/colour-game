@@ -2,76 +2,121 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-function Square(props) {
+const colours = ['green', 'blue', 'red', 'purple'];
+
+//Coloured buttons
+function Button(props) {
     return (
         <button 
-            className="square" 
+            className={props.value}
             onClick={props.onClick}
         >
-            {props.value}
+            
         </button>
         );
     }
 
-class Board extends React.Component {
+// Board is UI of game
+export class Board extends React.Component {
     constructor(props) {
         super(props);
+        
         this.state = {
-            squares: Array(9).fill(null),
-            xIsNext: true,
+            runningTotal: 0,
+            colourMatch: colours[0],
+            randomColours: colours.sort(function(a, b){return 0.5 - Math.random()}),
+            highscore: 0,
+            status: ""
         };
     }
     
-    handleClick(i) {
-        const squares = this.state.squares.slice();
-        if (calculateWinner(squares) || squares[i]) {
-            return;
-        }
-        squares[i] = this.state.xIsNext ? 'X' : 'O';;
-        this.setState({
-            squares: squares,
-            xIsNext: !this.state.xIsNext,
-            });
-    }
-    
-    renderSquare(i) {
+    //Calls Button function
+    renderButton(i) {
         return (
-            <Square
-                value={this.state.squares[i]}
-                onClick={() => this.handleClick(i)}
-                />
-            );
+            <Button
+                value={this.state.randomColours[i]}
+                onClick={() => this.handleClick(this.state.randomColours[i])}
+            />
+        );
+    }
+
+    handleClick(i) {
+        let randInt = Math.floor(Math.random() * Math.floor(4));
+        let runningTotal;
+        
+        if (i === this.state.colourMatch) {
+            let randomColours = colours.sort(function(a, b){return 0.5 - Math.random()});
+            runningTotal = this.state.runningTotal + 1; 
+
+            this.setState({
+                runningTotal: runningTotal,
+                randomColours: randomColours,
+                colourMatch: randomColours[randInt],
+                highscore: runningTotal,
+                status: "Keep Going"
+            });
+        } else {
+            let randomColours = colours.sort(function(a, b){return 0.5 - Math.random()});
+            let highscore = this.state.runningTotal; 
+            
+            this.setState({
+                runningTotal: 0,
+                randomColours: randomColours,
+                colourMatch: randomColours[randInt],
+                highscore: highscore,
+                status: "Finish"
+                });
+            }
         }
     
     render() {
-        const winner = calculateWinner(this.state.squares);
-        const status;
-        if (winner) {
-            status = 'Winner: ' + winner;
-        } else {
-            status = 'Next Player: ' + (this.state.xIsNext ? 'X' : 'O');
+        /*const status = checkScore(this.state.runningTotal);*/
+        if (this.state.status == "Finish") {
+            return (
+                <div>
+                    <div>
+                        <p>Match the colour to the name!</p>
+                    </div>
+                    <div className="colourMatch">
+                        <p id="match">{this.state.colourMatch}</p>
+                    </div>                
+                    <div className="buttonRow">
+                        {this.renderButton(0)}
+                        {this.renderButton(1)}
+                    </div>                
+                    <div className="buttonRow">
+                        {this.renderButton(2)}
+                        {this.renderButton(3)}
+                    </div>                
+                    <div className="scoreCount">
+                        <p>High Score: {this.state.highscore}</p>
+                        <p>{this.state.status}</p>
+                    </div>
+                </div>
+            )
         }
         
         return (
-                  <div>
-        <div className="status">{status}</div>
-                <div className="board-row">
-                  {this.renderSquare(0)}
-                  {this.renderSquare(1)}
-                  {this.renderSquare(2)}
+            <div>
+                <div>
+                    <p>Match the colour to the name!</p>
                 </div>
-                <div className="board-row">
-                  {this.renderSquare(3)}
-                  {this.renderSquare(4)}
-                  {this.renderSquare(5)}
+                <div className="colourMatch">
+                    <p id="match">{this.state.colourMatch}</p>
+                </div>                
+                <div className="buttonRow">
+                    {this.renderButton(0)}
+                    {this.renderButton(1)}
+                </div>                
+                <div className="buttonRow">
+                    {this.renderButton(2)}
+                    {this.renderButton(3)}
+                </div>                
+                <div className="scoreCount">
+                    <p>Score: {this.state.runningTotal}</p>
                 </div>
-                <div className="board-row">
-                  {this.renderSquare(6)}
-                  {this.renderSquare(7)}
-                  {this.renderSquare(8)}
-                </div>
-        </div>
-        );
+            </div>
+        )
     }
 }
 
@@ -79,39 +124,16 @@ class Game extends React.Component {
     render() {
         return (
             <div className="game">
-                <div className="game-board">
                     <Board />
-                </div>
-                <div className="game-info">
-                    <div>{/* status */}</div>
-                    <ol>{ /*To DO */}</ol>
-                </div>
             </div>
-        );
+        )
     }
 }
+
+
+// ========================================
 
 ReactDOM.render(
     <Game />,
     document.getElementById('root')
 );
-
-function calculateWinner(squares) {
-    const lines = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-    ];
-    for (let i=0; i < lines.length; i++) {
-        const [a, b, c] = lines[i];
-        if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-            return squares[a];
-        }
-    }
-    return null;
-}
